@@ -1,5 +1,7 @@
 module ccco;
 
+import std::io;
+
 extern char[] __bss, __bss_end, __stack_top;
 
 fn void boot() @naked @export("boot") @noinline @nostrip {
@@ -9,10 +11,7 @@ fn void boot() @naked @export("boot") @noinline @nostrip {
 }
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
-    const char *S = "\n\nHello World!\n";
-    for (int i = 0; S[i] != '\0'; i++) {
-      putchar(S[i]);
-    }
+    io::printf("\n\nHello World!, %d %d\n", 5, 9);
     for(;;) {
         asm {
             wfi;

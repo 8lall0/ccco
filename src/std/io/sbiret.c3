@@ -1,4 +1,4 @@
-module ccco;
+module std::io;
 
 typedef Uint8_t = char;
 typedef Uint32_t = uint;
