@@ -1,6 +1,7 @@
 module ccco;
 
 import std::io;
+import std::string;
 
 char[] __bss @export("__bss");
 char[] __bss_end @export("__bss_end");
@@ -14,7 +15,15 @@ fn void boot() @naked @export("boot") @noinline @nostrip {
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
     io::printf("\n\nHello World!, %d %d\n", 15, 9);
+    io::printf("Checking strings pippo and pluto\n");
 
+    ichar *s1 = "pippo";
+    ichar *s2 = "pluto";
+    if (!string::strcmp(s1, s1)) {
+        io::printf("s1 == s2\n");
+    } else {
+        io::printf("s1 != s2\n");
+    }
     for(;;) {
         asm {
             wfi;
