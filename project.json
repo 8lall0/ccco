@@ -8,7 +8,6 @@
   "sources": [ "src/**" ],
   "test-sources": [ "test/**" ],
   "output": "build",
-  "cc": "riscv32-unknown-elf-clang",
   "targets": {
     "ccco": {
       "target":  "elf-riscv32",
