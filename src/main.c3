@@ -2,6 +2,9 @@ module ccco;
 
 import std::io;
 import std::string;
+import std::mem;
+import std::types;
+import std::core::builtin;
 
 char[] __bss @export("__bss");
 char[] __bss_end @export("__bss_end");
@@ -14,6 +17,10 @@ fn void boot() @naked @export("boot") @noinline @nostrip {
 }
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
+    mem::memset(&__bss, 0, &__bss_end - &__bss);
+    io::printf("Culo %s\n", "culo");
+    builtin::panic("PANIC!");
+
     io::printf("\n\nHello World!, %d %d\n", 15, 9);
     io::printf("Checking strings pippo and pluto\n");
 
@@ -66,46 +73,4 @@ fn Sbiret sbi_call(int arg0, int arg1, int arg2, int arg3, int arg4,
 
 fn void putchar(char ch) {
     sbi_call(ch, 0, 0, 0, 0, 0, 0, 1);
-}
-
-fn void printf(char *fmt, args...) {
-    int ndx = 0;
-    while (*fmt != '\0') {
-        if (*fmt != '%') {
-            putchar(*fmt);
-            fmt++;
-        } else {
-            fmt++;
-            switch (*fmt) {
-                case '\0':
-                    return;
-                case 'd': {
-                    fmt++;
-                    int value = *(int*)args[ndx++];
-                    uint magnitude = value;
-
-                    if (value < 0) {
-                        putchar('-');
-                        magnitude = -magnitude;
-                    }
-
-                    // we want to compute the highest power of 10 that divides our
-                    // number and that leaves us with only a single digit
-                    // remaining
-                    uint power = 1;
-                    while (magnitude / power > 9) {
-                        power *= 10;
-                    }
-
-                    // print the digits from the most significant one to the least
-                    // significant
-                    while (power > 0) {
-                        putchar('0' + (char)(magnitude / power));
-                        magnitude %= power;
-                        power /= 10;
-                    }
-                }
-            }
-        }
-    }
 }
