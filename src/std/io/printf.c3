@@ -37,6 +37,7 @@ fn void putchar(char ch) {
     sbi_call(ch, 0, 0, 0, 0, 0, 0, 1);
 }
 
+// TODO now seems fine, but after you should use the c3 stdlib
 fn void printf(char *fmt, args...) {
     int ndx = 0;
     while (*fmt != '\0') {
@@ -48,6 +49,13 @@ fn void printf(char *fmt, args...) {
             switch (*fmt) {
                 case '\0':
                     return;
+                case 's': {
+                    fmt++;
+                    String s = *(String*)args[ndx++].ptr;
+                    for (int i = 0; i < s.len; i++) {
+                        putchar((char)s[i]);
+                    }
+                }
                 case 'd': {
                     fmt++;
                     int value = *(int*)args[ndx++];
