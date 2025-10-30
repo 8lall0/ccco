@@ -35,5 +35,5 @@ fn Sbiret sbi_call(int arg0, int arg1, int arg2, int arg3, int arg4,
 
 fn int putchar(int ch) {
     sbi_call(ch, 0, 0, 0, 0, 0, 0, 1);
-    return 1;
+    return ch;
 }
