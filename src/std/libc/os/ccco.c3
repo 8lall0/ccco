@@ -1,4 +1,4 @@
-module libc::os;
+module libc::os::ccco;
 
 struct Sbiret
 {
@@ -10,7 +10,8 @@ fn Sbiret sbi_call(int arg0, int arg1, int arg2, int arg3, int arg4,
               int arg5, int fid, int eid) {
 
     Sbiret output;
-    long result;
+    long error;
+    long value;
 
     asm {
          mv $a0, arg0;
@@ -24,16 +25,17 @@ fn Sbiret sbi_call(int arg0, int arg1, int arg2, int arg3, int arg4,
 
          ecall;
 
-         sw $a0, [&result];
+         sw $a0, [&error];
+         sw $a1, [&value];
     }
 
-    output.value = 1;
-    output.error = result;
+    output.value = value;
+    output.error = error;
 
     return output;
 }
 
-fn int putchar(int ch) {
+fn int _putchar(int ch) {
     sbi_call(ch, 0, 0, 0, 0, 0, 0, 1);
     return ch;
 }

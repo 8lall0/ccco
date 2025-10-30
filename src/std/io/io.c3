@@ -313,7 +313,8 @@ fn usz? printfn(String format, args...) @format(0) @maydiscard
 	formatter.init(&out_putchar_fn);
 	usz? len = formatter.vprintf(format, args);
 	out_putchar_fn(null, '\n')!;
-	io::stdout().flush()!;
+	// TODO: understand why this flush makes looping so hard
+	//io::stdout().flush()!;
 	return len + 1;
 }
 
