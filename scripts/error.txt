@@ -1,0 +1,9 @@
+ld.lld: error: /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a(libm_a-w_sqrt.o): cannot link object files with different floating-point ABI from build/obj/elf-riscv32/ccco.o
+ld.lld: error: /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a(libm_a-e_sqrt.o): cannot link object files with different floating-point ABI from build/obj/elf-riscv32/ccco.o
+ld.lld: error: /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a(libm_a-wf_sqrt.o): cannot link object files with different floating-point ABI from build/obj/elf-riscv32/ccco.o
+ld.lld: error: /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a(libm_a-ef_sqrt.o): cannot link object files with different floating-point ABI from build/obj/elf-riscv32/ccco.o
+ld.lld: error: undefined symbol: __errno
+>>> referenced by wf_sqrt.c
+>>>               libm_a-wf_sqrt.o:(sqrtf) in archive /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a
+>>> referenced by w_sqrt.c
+>>>               libm_a-w_sqrt.o:(sqrt) in archive /opt/riscv/riscv32-unknown-elf/lib/libm_nano.a
