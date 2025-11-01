@@ -1,6 +1,10 @@
 /* entry point is the boot function */
 ENTRY(boot)
 
+_sdata = ADDR(.data);
+_edata = ADDR(.data) + SIZEOF(.data);
+_sidata = LOADADDR(.data);
+
 SECTIONS {
     /* base address */
     . = 0x80200000;

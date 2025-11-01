@@ -325,7 +325,8 @@ fn CFile fclose(CFile) @weak @cname("fclose") @nostrip
 
 fn int fflush(CFile stream) @weak @cname("fflush") @nostrip
 {
-	unreachable("'fflush' not available.");
+    return 0;
+	//unreachable("'fflush' not available.");
 }
 
 fn int fputc(int c, CFile stream) @weak @cname("fputc") @nostrip

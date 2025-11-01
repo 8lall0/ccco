@@ -49,9 +49,31 @@ char[] __bss_end @export("__bss_end");
 char[] __stack_top @export("__stack_top");
 
 fn void boot() @naked @export("boot") @noinline @nostrip {
-    asm("la t0, __stack_top");
-    asm("mv sp, t0");
-    asm("j kernel_main");
+    asm(`
+    la sp, __stack_top
+    andi sp, sp, -16
+    la t0, _sdata
+    la t1, _edata
+    la t2, _sidata
+1:
+    bge t0, t1, 2f
+    lw t3, 0(t2)
+    sw t3, 0(t0)
+    addi t0, t0, 4
+    addi t2, t2, 4
+    j 1b
+2:
+    la t0, __bss
+    la t1, __bss_end
+3:
+    bge t0, t1, 4f
+    sw zero, 0(t0)
+    addi t0, t0, 4
+    j 3b
+4:
+    call kernel_main
+hang:
+    j hang`);
 }
 
 macro read_reg(String $reg)
@@ -150,7 +172,6 @@ fn void kernel_entry() @align(4) @export("kernel_entry") @noinline @nostrip {
 }
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
-    mem::set(&__bss, 0, &__bss_end - &__bss);
     io::printfn("\n\nHello World!\n");
 
     types::Paddr_t paddr0 = kernel::alloc_pages(2);
@@ -158,5 +179,10 @@ fn void kernel_main() @export("kernel_main") @noinline @nostrip {
     io::printfn("alloc_pages test: paddr0=%x\n", paddr0);
     io::printfn("alloc_pages test: paddr1=%x\n", paddr1);
 
-    kernel::_panic("booted!");
+    for (;;) {
+        asm {
+            wfi;
+        }
+    }
+    //kernel::_panic("booted!");
 }

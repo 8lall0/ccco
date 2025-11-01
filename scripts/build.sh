@@ -6,7 +6,7 @@ set -e
 
 (
   cd ..
-  c3c build --no-entry --riscv-cpu=rvimac
+  c3c build --no-entry --safe=no --riscv-cpu=rvimac
   #riscv32-unknown-elf-as -march=rv32imac -mabi=ilp32 -o build/obj/elf-riscv32/errno.o src/asm/errno.S
   #riscv32-unknown-elf-as -march=rv32imac -mabi=ilp32 -o build/obj/elf-riscv32/sqrt.o src/asm/sqrt.S
   #riscv32-unknown-elf-as -march=rv32imac -mabi=ilp32 -o build/obj/elf-riscv32/sqrtf.o src/asm/sqrtf.S
