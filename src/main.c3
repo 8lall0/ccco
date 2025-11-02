@@ -8,6 +8,9 @@ import libc;
 import std::core::string;
 import std::ascii;
 import std::kernel;
+import std::process;
+import libc::os::ccco;
+
 
 
 struct Trap_frame @packed {
@@ -91,7 +94,6 @@ macro write_reg(String $reg, String $value)
 }
 
 fn void handle_trap(Trap_frame *f) @export("handle_trap") @noinline @nostrip {
-    io::printfn("trap!\n");
     types::Uint32_t scause = read_reg("scause");
     types::Uint32_t stval = read_reg("stval");
     types::Uint32_t user_pc = read_reg("sepc");
@@ -101,84 +103,118 @@ fn void handle_trap(Trap_frame *f) @export("handle_trap") @noinline @nostrip {
 }
 
 fn void kernel_entry() @align(4) @export("kernel_entry") @noinline @nostrip {
-    asm("csrw sscratch, sp");
-    asm("addi sp, sp, -4 * 31");
-    asm("sw ra,  4 * 0(sp)");
-    asm("sw gp,  4 * 1(sp)");
-    asm("sw tp,  4 * 2(sp)");
-    asm("sw t0,  4 * 3(sp)");
-    asm("sw t1,  4 * 4(sp)");
-    asm("sw t2,  4 * 5(sp)");
-    asm("sw t3,  4 * 6(sp)");
-    asm("sw t4,  4 * 7(sp)");
-    asm("sw t5,  4 * 8(sp)");
-    asm("sw t6,  4 * 9(sp)");
-    asm("sw a0,  4 * 10(sp)");
-    asm("sw a1,  4 * 11(sp)");
-    asm("sw a2,  4 * 12(sp)");
-    asm("sw a3,  4 * 13(sp)");
-    asm("sw a4,  4 * 14(sp)");
-    asm("sw a5,  4 * 15(sp)");
-    asm("sw a6,  4 * 16(sp)");
-    asm("sw a7,  4 * 17(sp)");
-    asm("sw s0,  4 * 18(sp)");
-    asm("sw s1,  4 * 19(sp)");
-    asm("sw s2,  4 * 20(sp)");
-    asm("sw s3,  4 * 21(sp)");
-    asm("sw s4,  4 * 22(sp)");
-    asm("sw s5,  4 * 23(sp)");
-    asm("sw s6,  4 * 24(sp)");
-    asm("sw s7,  4 * 25(sp)");
-    asm("sw s8,  4 * 26(sp)");
-    asm("sw s9,  4 * 27(sp)");
-    asm("sw s10, 4 * 28(sp)");
-    asm("sw s11, 4 * 29(sp)");
-    asm("csrr a0, sscratch");
-    asm("sw a0, 4 * 30(sp)");
-    asm("mv a0, sp");
-    asm("call handle_trap");
-    asm("lw ra,  4 * 0(sp)");
-    asm("lw gp,  4 * 1(sp)");
-    asm("lw tp,  4 * 2(sp)");
-    asm("lw t0,  4 * 3(sp)");
-    asm("lw t1,  4 * 4(sp)");
-    asm("lw t2,  4 * 5(sp)");
-    asm("lw t3,  4 * 6(sp)");
-    asm("lw t4,  4 * 7(sp)");
-    asm("lw t5,  4 * 8(sp)");
-    asm("lw t6,  4 * 9(sp)");
-    asm("lw a0,  4 * 10(sp)");
-    asm("lw a1,  4 * 11(sp)");
-    asm("lw a2,  4 * 12(sp)");
-    asm("lw a3,  4 * 13(sp)");
-    asm("lw a4,  4 * 14(sp)");
-    asm("lw a5,  4 * 15(sp)");
-    asm("lw a6,  4 * 16(sp)");
-    asm("lw a7,  4 * 17(sp)");
-    asm("lw s0,  4 * 18(sp)");
-    asm("lw s1,  4 * 19(sp)");
-    asm("lw s2,  4 * 20(sp)");
-    asm("lw s3,  4 * 21(sp)");
-    asm("lw s4,  4 * 22(sp)");
-    asm("lw s5,  4 * 23(sp)");
-    asm("lw s6,  4 * 24(sp)");
-    asm("lw s7,  4 * 25(sp)");
-    asm("lw s8,  4 * 26(sp)");
-    asm("lw s9,  4 * 27(sp)");
-    asm("lw s10, 4 * 28(sp)");
-    asm("lw s11, 4 * 29(sp)");
-    asm("lw sp,  4 * 30(sp)");
-    asm("sret");
+    asm(`
+        csrw sscratch, sp
+        addi sp, sp, -4 * 31
+        sw ra,  4 * 0(sp)
+        sw gp,  4 * 1(sp)
+        sw tp,  4 * 2(sp)
+        sw t0,  4 * 3(sp)
+        sw t1,  4 * 4(sp)
+        sw t2,  4 * 5(sp)
+        sw t3,  4 * 6(sp)
+        sw t4,  4 * 7(sp)
+        sw t5,  4 * 8(sp)
+        sw t6,  4 * 9(sp)
+        sw a0,  4 * 10(sp)
+        sw a1,  4 * 11(sp)
+        sw a2,  4 * 12(sp)
+        sw a3,  4 * 13(sp)
+        sw a4,  4 * 14(sp)
+        sw a5,  4 * 15(sp)
+        sw a6,  4 * 16(sp)
+        sw a7,  4 * 17(sp)
+        sw s0,  4 * 18(sp)
+        sw s1,  4 * 19(sp)
+        sw s2,  4 * 20(sp)
+        sw s3,  4 * 21(sp)
+        sw s4,  4 * 22(sp)
+        sw s5,  4 * 23(sp)
+        sw s6,  4 * 24(sp)
+        sw s7,  4 * 25(sp)
+        sw s8,  4 * 26(sp)
+        sw s9,  4 * 27(sp)
+        sw s10, 4 * 28(sp)
+        sw s11, 4 * 29(sp)
+        csrr a0, sscratch
+        sw a0, 4 * 30(sp)
+        mv a0, sp
+        call handle_trap
+        lw ra,  4 * 0(sp)
+        lw gp,  4 * 1(sp)
+        lw tp,  4 * 2(sp)
+        lw t0,  4 * 3(sp)
+        lw t1,  4 * 4(sp)
+        lw t2,  4 * 5(sp)
+        lw t3,  4 * 6(sp)
+        lw t4,  4 * 7(sp)
+        lw t5,  4 * 8(sp)
+        lw t6,  4 * 9(sp)
+        lw a0,  4 * 10(sp)
+        lw a1,  4 * 11(sp)
+        lw a2,  4 * 12(sp)
+        lw a3,  4 * 13(sp)
+        lw a4,  4 * 14(sp)
+        lw a5,  4 * 15(sp)
+        lw a6,  4 * 16(sp)
+        lw a7,  4 * 17(sp)
+        lw s0,  4 * 18(sp)
+        lw s1,  4 * 19(sp)
+        lw s2,  4 * 20(sp)
+        lw s3,  4 * 21(sp)
+        lw s4,  4 * 22(sp)
+        lw s5,  4 * 23(sp)
+        lw s6,  4 * 24(sp)
+        lw s7,  4 * 25(sp)
+        lw s8,  4 * 26(sp)
+        lw s9,  4 * 27(sp)
+        lw s10, 4 * 28(sp)
+        lw s11, 4 * 29(sp)
+        lw sp,  4 * 30(sp)
+        sret
+    `);
+}
+
+process::Process *proc_a;
+process::Process *proc_b;
+
+fn void delay() {
+    for (int i = 0; i < 30000000; i++) {
+        asm("nop");
+    }
+}
+
+fn void proc_a_entry() {
+    io::printfn("starting process A\n");
+    while (1) {
+        io::printfn("A");
+        process::switch_context(&proc_a.sp, &proc_b.sp);
+        delay();
+    }
+}
+
+fn void proc_b_entry() {
+    io::printfn("starting process B\n");
+    while (1) {
+        io::printfn("B");
+        process::switch_context(&proc_b.sp, &proc_a.sp);
+        delay();
+    }
 }
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
+    //types::Paddr_t paddr0 = kernel::alloc_pages(2);
+    //types::Paddr_t paddr1 = kernel::alloc_pages(1);
+    //io::printfn("alloc_pages test: paddr0=%x\n", paddr0);
+    //io::printfn("alloc_pages test: paddr1=%x\n", paddr1);
+
+    asm(@sprintf("la t0, %s", &kernel_main));
+    asm("csrw stvec, t0");
     io::printfn("\n\nHello World!\n");
 
-    types::Paddr_t paddr0 = kernel::alloc_pages(2);
-    types::Paddr_t paddr1 = kernel::alloc_pages(1);
-    io::printfn("alloc_pages test: paddr0=%x\n", paddr0);
-    io::printfn("alloc_pages test: paddr1=%x\n", paddr1);
-
+    proc_a = process::create_process((types::Uint32_t) &proc_a_entry);
+    proc_b = process::create_process((types::Uint32_t) &proc_b_entry);
+    proc_a_entry();
     for (;;) {
         asm {
             wfi;
