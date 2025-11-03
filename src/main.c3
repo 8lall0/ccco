@@ -188,8 +188,7 @@ fn void proc_a_entry() {
     io::printfn("starting process A\n");
     while (1) {
         io::printfn("A");
-        process::switch_context(&proc_a.sp, &proc_b.sp);
-        delay();
+        process::yield();
     }
 }
 
@@ -197,28 +196,22 @@ fn void proc_b_entry() {
     io::printfn("starting process B\n");
     while (1) {
         io::printfn("B");
-        process::switch_context(&proc_b.sp, &proc_a.sp);
-        delay();
+        process::yield();
     }
 }
 
 fn void kernel_main() @export("kernel_main") @noinline @nostrip {
-    //types::Paddr_t paddr0 = kernel::alloc_pages(2);
-    //types::Paddr_t paddr1 = kernel::alloc_pages(1);
-    //io::printfn("alloc_pages test: paddr0=%x\n", paddr0);
-    //io::printfn("alloc_pages test: paddr1=%x\n", paddr1);
-
     asm(@sprintf("la t0, %s", &kernel_main));
     asm("csrw stvec, t0");
     io::printfn("\n\nHello World!\n");
 
+    Process *idle_proc = process::create_process((Uint32_t) null);
+    idle_proc.pid = 0; // idle
+    process::current_proc = idle_proc;
+
     proc_a = process::create_process((types::Uint32_t) &proc_a_entry);
     proc_b = process::create_process((types::Uint32_t) &proc_b_entry);
-    proc_a_entry();
-    for (;;) {
-        asm {
-            wfi;
-        }
-    }
+    process::yield();
+
     //kernel::_panic("booted!");
 }

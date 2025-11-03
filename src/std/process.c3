@@ -87,3 +87,27 @@ fn Process *create_process(Uint32_t pc) {
     proc.sp = (Uint32_t) sp;
     return proc;
 }
+
+Process *current_proc; // Currently running process
+Process *idle_proc;    // Idle process
+
+fn void yield() {
+    Process *next = idle_proc;
+    for (int i = 0; i < PROCS_MAX; i++) {
+        Process *proc = &procs[(current_proc.pid + i) % PROCS_MAX];
+        if (proc.state == PROC_RUNNABLE && proc.pid > 0) {
+            next = proc;
+            break;
+        }
+    }
+
+    if (next == current_proc) {
+        return;
+    }
+
+
+    // Context switch
+    Process *prev = current_proc;
+    current_proc = next;
+    switch_context(&prev.sp, &next.sp);
+}
