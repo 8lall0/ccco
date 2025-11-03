@@ -1,4 +1,4 @@
-module std::types;
+module kernel::types;
 
 alias Uint8_t = char;
 alias Uint16_t = ushort;

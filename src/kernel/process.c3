@@ -1,6 +1,5 @@
-module std::process;
-import std::types;
-import std::kernel;
+module kernel::process;
+import kernel::types;
 import std::io;
 
 const PROCS_MAX = 8;

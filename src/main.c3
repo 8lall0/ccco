@@ -2,15 +2,13 @@ module ccco;
 
 import std::io;
 import std::core::mem;
-import std::types;
 import std::core::builtin;
 import libc;
 import std::core::string;
 import std::ascii;
-import std::kernel;
-import std::process;
-import libc::os::ccco;
-
+import kernel;
+import kernel::process;
+import kernel::types;
 
 
 struct Trap_frame @packed {

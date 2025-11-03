@@ -1,10 +1,9 @@
-module std::kernel;
+module kernel;
 
-import std::types;
 import std::core::mem;
 import std::core::builtin;
 import std::io;
-
+import kernel::types;
 
 const PAGE_SIZE = 4096;
 
