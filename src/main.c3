@@ -138,6 +138,8 @@ fn void kernel_entry() @align(4) @export("kernel_entry") @noinline @nostrip {
         sw s11, 4 * 29(sp)
         csrr a0, sscratch
         sw a0, 4 * 30(sp)
+        addi a0, sp, 4 * 31
+        csrw sscratch, a0
         mv a0, sp
         call handle_trap
         lw ra,  4 * 0(sp)

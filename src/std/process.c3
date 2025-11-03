@@ -14,7 +14,7 @@ struct Process {
     Uint8_t[8192] stack;        // Kernel stack
 }
 
-fn void switch_context(Uint32_t *prev_sp, Uint32_t *next_sp) @naked {
+fn void switch_context(Uint32_t *prev_sp, Uint32_t *next_sp) @naked @noinline {
     asm(`
         addi sp, sp, -13 * 4
         sw ra,  0  * 4(sp)
@@ -105,6 +105,11 @@ fn void yield() {
         return;
     }
 
+    Uint32_t n = (Uint32_t) &next.stack+2048;
+    asm {
+        lw $t0, [n];
+    }
+    asm("csrw sscratch, t0");
 
     // Context switch
     Process *prev = current_proc;
