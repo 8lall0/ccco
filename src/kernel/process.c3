@@ -1,15 +1,21 @@
 module kernel::process;
+import kernel;
 import kernel::types;
 import std::io;
+import kernel::page;
+
 
 const PROCS_MAX = 8;
 const PROC_UNUSED = 0;   // Unused process control structure
 const PROC_RUNNABLE = 1;   // Runnable process
 
+char[] __kernel_base @export("__kernel_base");
+
 struct Process {
     int pid;                    // Process ID
     int state;                  // Process state: PROC_UNUSED or PROC_RUNNABLE
     Uint32_t sp;                // Stack pointer
+    Uint8_t *page_table;
     Uint8_t[8192] stack;        // Kernel stack
 }
 
@@ -80,6 +86,13 @@ fn Process *create_process(Uint32_t pc) {
         sw pc, [sp];
     }
 
+    // Map kernel pages.
+    Uint32_t *page_table = (Uint32_t *) kernel::alloc_pages(1);
+    for (Paddr_t paddr = (Paddr_t) &__kernel_base; paddr < (Paddr_t) &kernel::__free_ram_end; paddr += page::PAGE_SIZE) {
+        page::map_page(page_table, paddr, paddr, page::PAGE_R | page::PAGE_W | page::PAGE_X);
+    }
+
+
     // Initialize fields.
     proc.pid = i + 1;
     proc.state = PROC_RUNNABLE;
@@ -104,14 +117,24 @@ fn void yield() {
         return;
     }
 
+
+
+    // Context switch
+    Process *prev = current_proc;
+    current_proc = next;
+    Uint32_t o = (Uint32_t) page::SATP_SV32 | (Uint32_t) ((Uint32_t)next.page_table / page::PAGE_SIZE);
     Uint32_t n = (Uint32_t) &next.stack+2048;
+
+    asm(`sfence.vma`);
+    asm {
+        lw $t1, [&o];
+    }
+    asm("csrw satp, t0");
+    asm(`sfence.vma`);
     asm {
         lw $t0, [n];
     }
     asm("csrw sscratch, t0");
 
-    // Context switch
-    Process *prev = current_proc;
-    current_proc = next;
     switch_context(&prev.sp, &next.sp);
 }

@@ -8,6 +8,7 @@ _sidata = LOADADDR(.data);
 SECTIONS {
     /* base address */
     . = 0x80200000;
+    __kernel_base = .;
 
     /* contains the instructions */
     .text :{

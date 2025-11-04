@@ -212,6 +212,4 @@ fn void kernel_main() @export("kernel_main") @noinline @nostrip {
     proc_a = process::create_process((types::Uint32_t) &proc_a_entry);
     proc_b = process::create_process((types::Uint32_t) &proc_b_entry);
     process::yield();
-
-    //kernel::_panic("booted!");
 }
